@@ -18,7 +18,7 @@
 File dis_log[3];
 File chg_log[3];
 
-
+boolean first_3C,first_4C;
 const int led_chg[3] = {24,38,50};
 const int leds[3][3] = {{25,26,27},{39,40,41},{51,52,53}}; //Leds bancada 1
 const int transistorPin_rele_bat[3] = {22,36,48}; //Mudar alguns pinos por causa do cartão sd
@@ -114,9 +114,10 @@ void setup() {
       while(1);
     }*/}
 
-  
+  first_3C=false;
+  first_4C=false;
   for (int i = 0; i < 3; ++i) if(voltage(i+1)<4.2) charge[i]=true; //Checks if battery is fully charged when the arduino is powered on, before starting the test
-}
+} 
 
 void loop() {
 
@@ -142,10 +143,10 @@ void loop() {
   {
   //Get temperatures
   temperature[i]=temperatures(termistorPin[i]);
-  Serial.println("1");
+
   //Fail-safe in case the battery gets too hot
   fail_s[i] = fail_safe(fail_s[i], temperature[i], transistorPin_rele_bat[i], transistorPin_rele_chg[i],um_c[i],i);
-  Serial.println("2");
+
   //DIscharge at 1c
   if (um_c[i] < 3 && !charge[i])
   {
@@ -161,7 +162,7 @@ void loop() {
     dis_log[i].println(data);
     //dis_log[i].flush;
   }
-  Serial.println("3");
+
   //Charge
   if (charge[i])
   {
@@ -176,7 +177,7 @@ void loop() {
     chg_log[i].println(data);
     //chg_log[i].flush;
   }
-  Serial.println("4");
+
       //All finished
   if(um_c[i]>3  && !charge[i]) {
     turn_off(transistorPin_rele_bat[i],transistorPin_rele_chg[i]);  
@@ -229,10 +230,18 @@ int discharge (int16_t current, int16_t voltage, int level, boolean &charge, int
     case 0: 
             return discharge_1C(current,voltage,level,charge,n);
             break;
-    case 1: level=level_2;
+    case 1: if(!first_3C)
+            {
+              level=level_2;
+              first_3C=true;
+            }
             return discharge_3C(current,voltage,level,charge,n);
             break;
-    case 2: level=level_3;
+    case 2:  if(!first_4C)
+            {
+              level=level_3;
+              first_4C=true;
+             }
             return discharge_4C(current,voltage,level,charge,n);
             break;
     default: return 0;
