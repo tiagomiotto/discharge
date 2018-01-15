@@ -7,22 +7,21 @@ Test the adc by measuring a dummy voltage provided by the PSU
 #include <math.h> 
 
 /*Fill in the desired adc addr!*/
-Adafruit_ADS1015 ads1115_1(0x48); 
+Adafruit_ADS1115 ads1115(0x49); //Mudar isso no codigo principal
 
-
+double volts;
 void setup(){
-    ads1115_1.begin();
+  ads1115.begin();
   Serial.begin(9600);
+  
 } 
 void loop(){
-  float volts;
-  volts = voltage();
+  
+  
   Serial.print("Voltage: ");
   Serial.print(volts);
-  Serial.print(" V");
-  delay(1000);
+  Serial.println(" V");
+  volts = ads1115.readADC_Differential_2_3()*0.000188;
+  delay(100);
 }
 
-float voltage (int n){
-    return ads1115_1.readADC_Differential_0_1()/0.0000762939453125;
-}
