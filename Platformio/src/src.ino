@@ -160,12 +160,12 @@ void loop() {
   //DIscharge at 1c
   if (um_c[i] < 1 && !charge[i])
   {
-    voltage_1 = voltage(i+1);
-    current_1 = current(i+1);
-    turn_on(fail_s[i], transistorPin_rele_bat[i], transistorPin_rele_chg[i]);
-    um_c[i] = um_c[i] + discharge(current_1, voltage_1, level, charge[i],i+1,um_c[i]);
-      if(um_c[i]>0){ //Turn on LED to indaicate n discharges complete
-        digitalWrite(leds[i][um_c[i]-1],HIGH);
+    voltage_1 = voltage(i);
+    current_1 = current(i);
+    turn_on(fail_s[i], i);
+    um_c[i] = um_c[i] + discharge(current_1, voltage_1, level, charge[i],i,um_c[i]);
+      if(um_c[i]>0){ //Turn on LED to indicate n discharges complete
+        digitalWrite(leds[i][um_c[i]-1],HIGH); //Minus one is due to the value having already been incremented;
       }
     data = String(voltage_1) + "\t," + String(current_1) + "\t," +String(temperature[i]) + "\t," + String(hour) + ":" +String(min) + ":"+String(sec) + "\n" ;
     Serial.println(data);
@@ -177,12 +177,12 @@ void loop() {
   if (charge[i])
   {
     digitalWrite(led_chg[i],HIGH);
-    voltage_1 = voltage(i+1);
-    charge[i] = charge_bat(voltage_1, transistorPin_rele_bat[i], transistorPin_rele_chg[i]);
+    voltage_1 = voltage(i);
+    charge[i] = charge_bat(voltage_1,i);
     if(!charge[i]){
       digitalWrite(led_chg[i],LOW);
     }
-    data = "CHarge " + String(voltage_1) + "\t," + String(current_1) + "\t," +String(temperature[i]) + "\t," + String(hour) + ":" +String(min) + ":"+String(sec) + "\n" ;
+    data = "Charge " + String(voltage_1) + "\t," + String(current_1) + "\t," +String(temperature[i]) + "\t," + String(hour) + ":" +String(min) + ":"+String(sec) + "\n" ;
     Serial.println(data);
     chg_log[i].println(data);
     chg_log[i].flush();
@@ -190,8 +190,7 @@ void loop() {
 
       //All finished
   if(um_c[i]>3  && !charge[i]) {
-    turn_off(transistorPin_rele_bat[i],transistorPin_rele_chg[i]);  
-    //analogWrite(13,250);
+    turn_off(i);  
   }
   
   }
@@ -219,20 +218,20 @@ int fail_safe(int fail_s, int temperature, int n,int bench_r) //Fail-safe in cas
 
 }
 
-int turn_on(int fail_safe, int rele_bat, int rele_chg)
+int turn_on(int fail_safe, int bench_r)
 {
   if (fail_safe == 0)
   {
-    digitalWrite(rele_chg, HIGH);
-    digitalWrite(rele_bat, HIGH);
+    digitalWrite(transistorPin_rele_bat[bench_r], HIGH);
+    digitalWrite(transistorPin_rele_bat[bench_r], HIGH);
   }
   return 1;
 }
 
-void turn_off(int rele_bat, int rele_chg)
+void turn_off(int bench_r)
 {
-    digitalWrite(rele_chg, LOW);
-    digitalWrite(rele_bat, LOW);
+  digitalWrite(transistorPin_rele_bat[bench_r], LOW);
+  digitalWrite(transistorPin_rele_bat[bench_r], LOW);
 }
 int discharge (int16_t current, int16_t voltage, int level, boolean &charge, int n, int ce) //N defines the battery being tested
 {
@@ -348,30 +347,30 @@ float temperatures(int THERMISTORPIN){
 
 float voltage (int n){
 
-  if (n==1)
+  if (n==0)
   {
     return ads1115_1.readADC_Differential_0_1()/0.0000762939453125;
   }
-  if (n==2)
+  if (n==1)
   {
     return ads1115_2.readADC_Differential_0_1()/0.0000762939453125;
   }
-  if (n==3)
+  if (n==2)
   {
     return ads1115_3.readADC_Differential_0_1()/0.0000762939453125;
   } // Return the voltage according to the chosen bench
 }
 
 float current (int n){
-  if (n==1)
+  if (n==0)
   {
     return (ads1115_1.readADC_Differential_2_3()/0.0000762939453125)/0.0003;
   }
-  if (n==2)
+  if (n==1)
   {
     return (ads1115_2.readADC_Differential_2_3()/0.0000762939453125)/0.0003;
   }
-  if (n==3)
+  if (n==2)
   {
     return (ads1115_3.readADC_Differential_2_3()/0.0000762939453125)/0.0003;
   } // Return the current according to the chosen bench
