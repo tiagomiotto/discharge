@@ -328,7 +328,7 @@ void potentiometer(int level,int addr) // Testar isso com a célula grande
 }
 
 
-float temperatures(int THERMISTORPIN){ 
+float temperatures(int THERMISTORPIN){ //Se não funcionar com esta fómula, usar a interpolação do Jonathan
 // Colocar calculos da temperatura aqui
   double reading;
   reading = analogRead(THERMISTORPIN); 
