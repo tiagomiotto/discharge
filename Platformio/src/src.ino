@@ -8,12 +8,7 @@
 #include <SD.h>
 #include <Time.h>
 
-#define SERIESRESISTOR 10000
-#define r25 10000
-#define A_1 0.003354016
-#define B_1 0.0002569850
-#define C_1 0.000002620131
-#define D_1 0.00000006383091
+
 #define level_1 0xD6
 #define level_2 0x31
 #define level_3 0x1C
