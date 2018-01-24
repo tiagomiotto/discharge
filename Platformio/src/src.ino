@@ -86,7 +86,10 @@ void setup() {
   }  
  
   pinMode(SS,OUTPUT);
+  /*Só pro primeiro teste sem a bateria*/
   RTC.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  /**/
+
   DateTime now=RTC.now();
  
   if (!SD.begin(chipSelect)) { //É assim pro mega
@@ -152,7 +155,7 @@ void loop() {
   temperature[i]=temperatures(termistorPin[i]);
 
   //Fail-safe in case the battery gets too hot
-  fail_s[i] = fail_safe(fail_s[i], temperature[i], transistorPin_rele_bat[i], transistorPin_rele_chg[i],um_c[i],i);
+  fail_s[i] = fail_safe(fail_s[i], temperature[i],um_c[i],i);
 
   //DIscharge at 1c
   if (um_c[i] < 1 && !charge[i])
@@ -197,16 +200,16 @@ void loop() {
 
 }
 
-int fail_safe(int fail_s, int temperature, int rele_bat, int rele_chg,int n,int bench_r) //Fail-safe in case the battery gets too hot
+int fail_safe(int fail_s, int temperature, int n,int bench_r) //Fail-safe in case the battery gets too hot
 {
   
   if ( temperature > 60)
   {
-    digitalWrite(rele_chg, LOW);
-    digitalWrite(rele_bat, LOW);
+    digitalWrite(transistorPin_rele_bat[bench_r], LOW);
+    digitalWrite(transistorPin_rele_bat[bench_r], LOW);
     return 1;
   }
-  if (fail_s == 1 )//Blink Led
+  if (fail_s == 1 )//Blink leds to indicate in which of the tests it failed
   {
 
       digitalWrite(leds[bench_r][n],HIGH);
@@ -231,7 +234,7 @@ void turn_off(int rele_bat, int rele_chg)
     digitalWrite(rele_chg, LOW);
     digitalWrite(rele_bat, LOW);
 }
-int discharge (int16_t current, int16_t voltage, int level, boolean &charge, int n, int ce)
+int discharge (int16_t current, int16_t voltage, int level, boolean &charge, int n, int ce) //N defines the battery being tested
 {
   switch (ce){
     case 0: 
@@ -247,7 +250,7 @@ int discharge (int16_t current, int16_t voltage, int level, boolean &charge, int
     case 2:  if(!first_4C)
             {
               level=level_3;
-              first_4C=true;
+              first_4C=true; //So it can correct itself on the upcoming iterations of the code.
              }
             return discharge_4C(current,voltage,level,charge,n);
             break;
@@ -258,7 +261,7 @@ int discharge_1C(int16_t current, int16_t voltage, int level, boolean &charge, i
 {
   //Define the addr in regard with the chosen bench
   int addr;
-  addr=pot_addr[n-1];
+  addr=pot_addr[n-1]; 
   
 
   if (current > 16.8) { //Keep the precision on the discharge current
@@ -276,7 +279,7 @@ int discharge_1C(int16_t current, int16_t voltage, int level, boolean &charge, i
 
 int discharge_3C(int16_t current, int16_t voltage, int level, boolean &charge, int n) { //Tirar?
   int addr;
-  addr = pot_addr[n-1];
+  addr = pot_addr[n-1]; //Select the correct addres for the given bench
 
 
   if (current > 51.4) { //Keep the precision on the discharge current
@@ -294,7 +297,7 @@ int discharge_3C(int16_t current, int16_t voltage, int level, boolean &charge, i
 
 int discharge_4C(int16_t current, int16_t voltage, int level, boolean &charge, int n) { //Tirar?
   int addr;
-  addr = pot_addr[n-1];
+  addr = pot_addr[n-1]; //Select the correct addres for the given bench
 
 
   if (current > 69.2) { //Keep the precision on the discharge current
@@ -310,17 +313,18 @@ int discharge_4C(int16_t current, int16_t voltage, int level, boolean &charge, i
   }
 }
 
-boolean charge_bat(int16_t voltage, int rele_bat, int rele_chg) {
+boolean charge_bat(int16_t voltage, int bench) { //Corrigir aqui
   //Light up charging led
-  digitalWrite(rele_chg, HIGH);
-  digitalWrite(rele_bat, LOW);
+  digitalWrite(led_chg[bench], HIGH);
+  digitalWrite(transistorPin_rele_chg[bench], HIGH);
+  digitalWrite(transistorPin_rele_bat[bench], LOW);
   if (voltage >= 4.2) {
     return  false; //To indicate that charging has finished
   }
   else return true;
 }
 
-void potentiometer(int level,int addr) // Arrumar isso para as diferentes bancadas
+void potentiometer(int level,int addr) // Testar isso com a célula grande
 {
   Wire.beginTransmission(addr); // transmit to device #addr (0x2c)
   // device address is specified in datasheet
@@ -330,8 +334,7 @@ void potentiometer(int level,int addr) // Arrumar isso para as diferentes bancad
 }
 
 
-float temperatures(int THERMISTORPIN){ // Ta mal a temperatura
-
+float temperatures(int THERMISTORPIN){ 
 // Colocar calculos da temperatura aqui
   double reading;
   reading = analogRead(THERMISTORPIN); 
@@ -356,7 +359,7 @@ float voltage (int n){
   if (n==3)
   {
     return ads1115_3.readADC_Differential_0_1()/0.0000762939453125;
-  }
+  } // Return the voltage according to the chosen bench
 }
 
 float current (int n){
@@ -371,7 +374,7 @@ float current (int n){
   if (n==3)
   {
     return (ads1115_3.readADC_Differential_2_3()/0.0000762939453125)/0.0003;
-  }
+  } // Return the current according to the chosen bench
 }
 
 
