@@ -11,6 +11,7 @@ Adafruit_ADS1115 ads1115(0x49); //Mudar isso no codigo principal
 
 double volts;
 void setup(){
+  Wire.begin();
   ads1115.begin();
   Serial.begin(9600);
   
