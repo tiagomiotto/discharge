@@ -14,10 +14,10 @@ identification: 10100(A1)(A0)0
 const int addr = 0x53; //Addr
 byte level = 0x100;
 const byte ident = 0xA6
+int aux_level=level;
+int resistance;
 
 void setup(){
-  int aux_level=level;
-  int resistance;
   Serial.begin(9600);
   Wire.begin();
   Wire.beginTransmission(addr); // transmit to device #addr (0x2c)
