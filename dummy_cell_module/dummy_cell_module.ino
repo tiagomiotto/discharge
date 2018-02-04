@@ -8,15 +8,16 @@ Current drain is expected to be around 14,38 due to the potentiometer's limitati
 #include <math.h> 
 
 /*Fill in the desired adc addr!*/
-Adafruit_ADS1115 ads1115_1(0x48);
+Adafruit_ADS1115 ads1115_1(0x4B);
 const int rele_bat = 23;
 
 void setup(){
-    ads1115_1.begin();
+  ads1115_1.begin();
   Serial.begin(9600);
+  Wire.begin();
   pinMode(rele_bat,OUTPUT);
   digitalWrite(rele_bat,HIGH);
-  Wire.beginTransmission(0x53); // transmit to device #addr (0x2c)
+  Wire.beginTransmission(164); // transmit to device #addr (0xA4)
   // device address is specified in datasheet
   Wire.write(byte(0x00));        // sends instruction byte // Essa instrução é pra escrever no Wiper Registry
   Wire.write(0x00);             // sends potentiometer value byte 
