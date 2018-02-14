@@ -14,8 +14,10 @@ void setup(){
   int aux_level=level;
   int resistance;
   Serial.begin(9600);
+  Wire.begin();
   Wire.beginTransmission(addr); // transmit to device #addr (0x2c)
   // device address is specified in datasheet
+  Wire.write(byte(0xA1)); //Mudar aqui conforme o addr 10100(A1)(A0)0
   Wire.write(byte(0x00));        // sends instruction byte // Essa instrução é pra escrever no Wiper Registry
   Wire.write(level);             // sends potentiometer value byte 
   Wire.endTransmission();     // stop transmitting
@@ -41,6 +43,7 @@ void potentiometer(int level)
 {
   Wire.beginTransmission(addr); // transmit to device #addr (0x2c)
   // device address is specified in datasheet
+  Wire.write(byte(0xA1)); //Mudar aqui conforme o addr 10100(A1)(A0)0
   Wire.write(byte(0x00));        // sends instruction byte // Essa instrução é pra escrever no Wiper Registry
   Wire.write(level);             // sends potentiometer value byte 
   Wire.endTransmission();     // stop transmitting
