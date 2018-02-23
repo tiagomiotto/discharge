@@ -50,7 +50,7 @@ void setup() {
   hour=now.hour();
   min=now.minute();
   sec=now.second(); 
-    data = String(hour) + ":" +String(min) + ":"+String(sec) + "\n" ;
+    data = String(hour) + ":" +String(min) + ":"+String(sec) + "\n" ;    //Prin in serial
     Serial.println(data);
-    dis_log.println(data);
+    dis_log.println(data);                                              //Print in SD card
   }
