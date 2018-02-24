@@ -7,63 +7,53 @@ allowing enough time to be measured confirming the proper functioning
 #include <Wire.h>
 #include <math.h> 
 
-const int addr = 0xA0;
-const int level = 0xFF;
+const int addr = 0x50;  // device address is specified in datasheet IMPORTANT      
+const int level=0xFF;
 int aux_level=level;
 const int rele_bat=22;
+
 int X0;
 void setup(){
   
   Serial.begin(9600);
   Wire.begin();
   pinMode(rele_bat,OUTPUT);
+
   digitalWrite(rele_bat,HIGH);
 }
 void loop(){
-  float resistance;
-  
-  delay(1000);
-  if(aux_level>=10) {
-    aux_level=aux_level-10;
-    potentiometer(aux_level);
-  }
-  if(aux_level<10){
+  float diferential;
+  String data; 
+ 
+ 
+  potentiometer(aux_level);
+  delay(250);
+  diferential = read_diferential();
+  data = String(aux_level) + "\t"+ String(diferential) +"\t";
+  if(aux_level<1){
     aux_level=0xFF;
-    potentiometer(aux_level);
   }
- resistance = (10000/256)*readfrom();
-  Serial.print("Resistance: ");
-  Serial.print(resistance);
-  Serial.println(" V");
+  else{
+    aux_level=aux_level-1; 
+  }
+ Serial.println(data);
 }
 
+
+//Function to communicate with POT and define lvl
 void potentiometer(int lvl) 
 {
   Wire.beginTransmission(addr); // transmit to device #addr (0x2c)
-  // device address is specified in datasheet
-
   Wire.write(byte(0x00));        // sends instruction byte // Essa instrução é pra escrever no Wiper Registry
   Wire.write(lvl);             // sends potentiometer value byte 
   Wire.endTransmission();     // stop transmitting
 }
-int readfrom(){
-  Wire.beginTransmission(addr); // Begin transmission to the Sensor 
-  //Ask the particular registers for data
-  Wire.write(0x00);
-  
-  Wire.endTransmission(); // Ends the transmission and transmits the data from the two registers
-  
-  Wire.requestFrom(addr,2); // Request the transmitted two bytes from the two registers
-  
-  if(Wire.available()<=1) {  // 
-    X0 = Wire.read(); // Reads the data from the register
-    
-  }
-  
- return X0;
 
+
+//Arduino pins, read outuput voltage from POT
+float read_diferential(){
+  float positive,negative;
+  positive=analogRead(A2)*(5.0/1024.0);
+  negative=analogRead(A3)*(5.0/1024.0);
+  return positive-negative;
 }
-
-
-
-
