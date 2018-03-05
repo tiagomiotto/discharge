@@ -11,7 +11,7 @@ Current drain is expected to be around 14,38 due to the potentiometer's limitati
 Adafruit_ADS1115 ads1115_1(0x48);
 const int rele_bat = 22;
 const int addr = 0x50;
-const int level=0xFF;
+const int level=0xC0;
 const int termistor=A0;
 unsigned long tempo;
 
@@ -20,20 +20,22 @@ void setup(){
   Serial.begin(9600);
   Wire.begin();
   pinMode(rele_bat,OUTPUT);
- 
+  digitalWrite(rele_bat,HIGH);
   potentiometer(level);
 } 
 void loop(){
   float volts,curr,temp;
   String data;
-  digitalWrite(rele_bat,LOW);
+
   potentiometer(level);
   curr = current();
   volts = voltage();
-  temp=temperatures(termistor);
+  //temp=temperatures(termistor);
+  temp=0;
   tempo=millis();
   data = String(volts)+"V \t"+String(curr)+"A \t"+String(temp)+"C \t"+String(tempo)+"ms";
   Serial.println(data);
+  digitalWrite(rele_bat,HIGH);
   delay(1000);
 }
 
