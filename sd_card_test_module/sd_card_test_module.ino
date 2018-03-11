@@ -42,7 +42,8 @@ void setup() {
     if(dis_log[i]<=0 || !chg_log[i]<=0){
       Serial.println("Error opening file");
       //while(1);
-    }}
+    }
+  }
 
   void loop(){
       DateTime now=RTC.now();
