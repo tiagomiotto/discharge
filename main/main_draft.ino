@@ -87,10 +87,10 @@ void check_safety(float Voltage, float Amps, float Temp){
 
 	if(Voltage > 4.25 || Voltage < 2.8)
 		shutdown();
-
+	//to be econtinued
 }
 
-//
+//To add more feature
 void shutdown(int Time){
 
 	digitalWrite(rele_bat,LOW);
