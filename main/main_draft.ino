@@ -11,8 +11,15 @@ This is a draft in progress of what will be the final main
 
 /*Fill in the desired adc addr!*/
 Adafruit_ADS1115 ads1115_1(0x48);
-const int rele_bat = 22;
-const int rele_charger = 22;
+
+//Define relays
+const int rele_batTB1 = 22;
+const int rele_chargerTB1 = 22;
+const int rele_batTB2 = ;
+const int rele_chargerTB2 = ;
+const int rele_batTB3 = ;
+const int rele_chargerTB3 = ;
+
 const int addr = 0x50;
 const int level=0xFF;
 const int termistor=A0;
@@ -76,25 +83,30 @@ float temperatures(int THERMISTORPIN){
   return  temperature;
 }
 
-//Write data in SD
-void write_SD(float Voltage,float Amps,float Temp,int Time){
-	data = String(Voltage) + "\t" + String(Amps) + "\t" + String(Temp) + "\t" + String(Time) + "\n";
+//Write data in SD, (how o wrtie TB!, TB2 and TB3)
+void write_SD(float Voltage,float Amps,float Temp,int Time,float Voltage2,float Amps2,float Temp2,int Time2,float Voltage3,float Amps3,float Temp3,int Time3){
+	data = String(Voltage) + "\t" + String(Amps) + "\t" + String(Temp) + "\t" + String(Time) + "\n"
 	dis_log.printIn(data);
 }
 
-//If Voltage, Current and Temperature are too hugh or low shutdown the bench
-void check_safety(float Voltage, float Amps, float Temp){
+//If Voltage, Current and Temperature are too hugh or low shutdown the bench, type = 1(C), 2(C) 3(C) etc
+void check_safety(float Voltage, float Amps, float Temp, int type){
 
-	if(Voltage > 4.25 || Voltage < 2.8)
+	if(Voltage > 4.25 || Voltage < 2.8 || Temp > 150 || Amps > 100)		//Example to review again
 		shutdown();
-	//to be econtinued
+
+	
 }
 
 //To add more feature
 void shutdown(int Time){
 
-	digitalWrite(rele_bat,LOW);
-	digitalWrite(rele_charger,LOW);
+	digitalWrite(rele_batTB1,LOW);
+	digitalWrite(rele_chargerTB1,LOW);
+	digitalWrite(rele_batTB2,LOW);
+	digitalWrite(rele_chargerTB2LOW);
+	digitalWrite(rele_batTB3,LOW);
+	digitalWrite(rele_chargerTB3,LOW);
 	write_SD(0,0,0,Time);
 	while(1)
 }
