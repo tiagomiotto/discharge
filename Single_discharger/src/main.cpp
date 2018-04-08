@@ -141,7 +141,9 @@ void setup()
     //IN CASE THE BATTERY IS DISCHARGED
     if (voltage() < 4.2)
         charge = true;
-}
+    data = "Volts " + "\t" + "Amps" + "\t" + "Temp" + "\t" + "Time"; 
+        chg_log.println(data);
+    dis_log.println(data);
 
 void loop()
 {
